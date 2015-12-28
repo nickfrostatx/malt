@@ -22,6 +22,8 @@ Heavily inspired by (or stolen from) Flask/Werkzeug.
 Installation
 ------------
 
+This will run on Python 2.6+ or 3.3+. There are no dependencies.
+
 .. code-block:: bash
 
     $ pip install malt
