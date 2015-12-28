@@ -10,7 +10,8 @@ def test_environ():
         'REQUEST_METHOD': 'GET',
         'PATH_INFO': '/',
         'SCRIPT_NAME': '/app',
-        'SERVER_NAME': '',
+        'SERVER_NAME': 'localhost',
+        'SERVER_PORT': '5000',
         'wsgi.url_scheme': 'http',
     })
     assert request.method == 'GET'
@@ -19,7 +20,7 @@ def test_environ():
     assert request.host == 'localhost'
     assert request.port == '5000'
     assert request.scheme == 'http'
-    return request.url == 'http://localhost:'
+    return request.url == 'http://localhost:5000/app/'
 
 
 def test_headers():
