@@ -4,6 +4,10 @@
 from functools import partial
 from .wrappers import Request, Response
 import sys
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 
 
 class Malt(object):
@@ -12,6 +16,7 @@ class Malt(object):
 
     def __init__(self):
         self.url_map = {}
+        self.view_map = {}
 
     def add_rule(self, method, url, view):
         """Add the """
@@ -22,8 +27,18 @@ class Malt(object):
             raise Exception('Duplicate route: {0} {1}'.format(method, url))
 
         self.url_map[url][method] = view
+        self.view_map[view] = url
 
         return view
+
+    def url_for(self, view, **params):
+        """Return the url for a particular view function."""
+        if view not in self.view_map:
+            raise Exception('The view %r is not registered to a url' % view)
+        url = self.view_map[view]
+        if params:
+            url += '?' + urlencode(params)
+        return url
 
     def method_router(method):
         def route(self, url):
