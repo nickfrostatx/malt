@@ -11,19 +11,19 @@ def test_status_code():
 
 
 def test_status_text():
-    assert Response('').status == '200 OK'
-    assert Response('', 100).status == '100 Continue'
-    assert Response('', 418).status == '418 I\'m a teapot'
+    assert Response().status == '200 OK'
+    assert Response(code=100).status == '100 Continue'
+    assert Response(code=418).status == '418 I\'m a teapot'
 
 
 def test_status_invalid():
     with pytest.raises(ValueError) as exc:
-        Response('', 200.)
+        Response(code=200.)
     assert 'Invalid status: 200.0' in str(exc)
 
     for code in (100., '', '200', -15, 0, 199, 600):
         with pytest.raises(ValueError) as exc:
-            Response('').status_code = code
+            Response().status_code = code
         assert 'Invalid status: ' + repr(code) in str(exc)
 
 
