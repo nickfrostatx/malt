@@ -77,8 +77,13 @@ class Response(object):
 
     """WSGI response object."""
 
+    charset = 'utf-8'
+
     def __init__(self, data, code=200):
-        self.data = data
+        if isinstance(data, (bytes, type(u''))):
+            self.response = [data]
+        else:
+            self.response = data
         self.status_code = code
         self.headers = []
 
@@ -96,7 +101,8 @@ class Response(object):
     del _get_status_code, _set_status_code
 
     def __iter__(self):
-        data = self.data
-        if isinstance(data, type(u'')):
-            data = data.encode('utf-8')
-        yield data
+        for chunk in self.response:
+            if isinstance(chunk, type(u'')):
+                yield chunk.encode(self.charset)
+            else:
+                yield chunk

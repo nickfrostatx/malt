@@ -34,7 +34,7 @@ def test_dispatch(app):
 
         resp = app.dispatch(request)
         assert resp.status_code == status
-        assert resp.data == text
+        assert resp.response == [text]
 
 
 def test_wsgi(app):

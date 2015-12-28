@@ -25,3 +25,14 @@ def test_status_invalid():
         with pytest.raises(ValueError) as exc:
             Response('').status_code = code
         assert 'Invalid status: ' + repr(code) in str(exc)
+
+
+def test_response_iterable():
+    assert Response('abc').response == ['abc']
+    assert Response([b'abc', 'def']).response == [b'abc', 'def']
+
+
+def test_response_text():
+    assert list(Response(b'Some text')) == [b'Some text']
+    assert list(Response('Some text')) == [b'Some text']
+    assert list(Response([b'abc', 'def'])) == [b'abc', b'def']
