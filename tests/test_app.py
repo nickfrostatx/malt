@@ -51,15 +51,3 @@ def test_wsgi(app):
     for fn in (app.wsgi_app, app):
         assert list(fn(environ, start_request)) == [b'Hello World!\n']
         assert arr[0] == ('200 OK', [])
-
-
-def test_duplicate_route(app):
-    with pytest.raises(Exception) as exc_info:
-        app.get('/')(lambda x: x)
-    assert 'Duplicate route: GET /' in str(exc_info)
-
-    decorator = app.post('/')
-    decorator(lambda x: x)
-    with pytest.raises(Exception) as exc_info:
-        decorator(lambda x: x)
-    assert 'Duplicate route: POST /' in str(exc_info)
