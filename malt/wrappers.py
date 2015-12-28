@@ -65,7 +65,7 @@ class Request(object):
             url += self.headers.get('Host')
         else:
             url += self.host
-            if self.port != (80 if self.scheme == 'http' else 443):
+            if self.port != ('80' if self.scheme == 'http' else '443'):
                 url += ':' + self.port
         url += self.script_name + self.path
         if self.query_string:
