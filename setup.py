@@ -5,7 +5,7 @@ import re
 
 version = ''
 with open('malt/__init__.py', 'r') as f:
-    version = re.search(r'__version__\s*=\s*\'([\d.]+)\'', f.read()).group(1)
+    version = re.search(r'__version__\s*=\s*\'(.+)\'', f.read()).group(1)
 
 with open('README.rst') as f:
     readme = f.read()
