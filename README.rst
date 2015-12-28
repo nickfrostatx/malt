@@ -15,6 +15,8 @@ Malt
 
 My toy WSGI microframework.
 
+This is very much a work in progress, it's not ready to use just yet.
+
 Heavily inspired by (or stolen from) Flask/Werkzeug.
 
 Installation
