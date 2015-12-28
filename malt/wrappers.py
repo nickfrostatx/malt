@@ -77,14 +77,13 @@ class Response(object):
 
     """WSGI response object."""
 
-    charset = 'utf-8'
-
-    def __init__(self, data, code=200):
+    def __init__(self, data, code=200, charset='utf-8'):
         if isinstance(data, (bytes, type(u''))):
             self.response = [data]
         else:
             self.response = data
         self.status_code = code
+        self.charset = charset
         self.headers = []
 
     def _get_status_code(self):
