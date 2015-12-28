@@ -17,7 +17,11 @@ def test_status_text():
 
 
 def test_status_invalid():
+    with pytest.raises(ValueError) as exc:
+        Response('', 200.)
+    assert 'Invalid status: 200.0' in str(exc)
+
     for code in (100., '', '200', -15, 0, 199, 600):
         with pytest.raises(ValueError) as exc:
-            Response('', code).status
+            Response('').status_code = code
         assert 'Invalid status: ' + repr(code) in str(exc)

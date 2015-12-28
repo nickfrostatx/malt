@@ -82,13 +82,18 @@ class Response(object):
         self.status_code = code
         self.headers = []
 
-    @property
-    def status(self):
+    def _get_status_code(self):
+        return self._status_code
+
+    def _set_status_code(self, code):
         try:
-            status_text = HTTP_STATUS_CODES[self.status_code]
-            return '{0:d} {1}'.format(self.status_code, status_text)
+            self.status = '{0:d} {1}'.format(code, HTTP_STATUS_CODES[code])
         except (KeyError, ValueError):
-            raise ValueError('Invalid status: {0!r}'.format(self.status_code))
+            raise ValueError('Invalid status: {0!r}'.format(code))
+        self._status_code = code
+
+    status_code = property(_get_status_code, _set_status_code)
+    del _get_status_code, _set_status_code
 
     def __iter__(self):
         data = self.data
