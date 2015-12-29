@@ -51,3 +51,20 @@ def test_alternate_charsets():
 
     assert list(Response(u'こんにちは', charset='euc-jp')) == [
         b'\xa4\xb3\xa4\xf3\xa4\xcb\xa4\xc1\xa4\xcf']
+
+
+def test_response_headers():
+    response = Response()
+    assert list(response.headers) == [('Content-Type', 'text/plain')]
+    response.headers['X-Powered-By'] = ['Coffee', 'Ramen']
+    assert list(response.headers) == [
+        ('Content-Type', 'text/plain'), ('X-Powered-By', 'Coffee'),
+        ('X-Powered-By', 'Ramen')]
+
+    assert response.headers['Content-Type'] == 'text/plain'
+    assert response.headers['X-Powered-By'] == 'Coffee'
+
+    del response.headers['X-Powered-By']
+    with pytest.raises(KeyError) as exc_info:
+        response.headers['X-Abc']
+    assert exc_info.value.args[0] == 'X-Abc'

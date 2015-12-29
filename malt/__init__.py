@@ -7,6 +7,7 @@ Minimalistic WSGI framework.
 """
 
 from .app import Malt
+from .exceptions import HTTPException
 from .wrappers import Request, Response
 
 __author__ = 'Nick Frost'

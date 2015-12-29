@@ -3,11 +3,12 @@
 
 from functools import partial
 from .http import HTTP_STATUS_CODES
+from .util import is_text
 
 
 class EnvironHeaders(object):
 
-    """Read the headers from a """
+    """Read the headers from environ."""
 
     def __init__(self, environ):
         self.environ = environ
@@ -32,6 +33,61 @@ class EnvironHeaders(object):
             return self.__getitem__(key)
         except KeyError:
             return default
+
+
+class Headers(object):
+
+    """Header data structure.
+
+    An appropriate name would be an ordered multi-dict.
+
+    >>> headers = Headers()
+    >>> headers['X-Abc'] = 'apple'
+    >>> list(headers)
+    [('X-Abc', 'apple')]
+    >>> headers['X-Green] = ['eggs', 'spam']
+    >>> list(headers)
+    [('X-Abc', 'apple'), ('X-Green', 'eggs'), ('X-Green', 'spam')]
+    """
+
+    def __init__(self):
+        self._headers = {}
+        self._order = []
+
+    def _ensure_contains(self, header):
+        """Raise a KeyError if the given header does not exist."""
+        if header.upper() not in self._headers:
+            raise KeyError(header)
+
+    def __getitem__(self, header):
+        """Return the first vaue for the given header."""
+        self._ensure_contains(header)
+
+        values = self._headers[header.upper()]
+        return values[0]
+
+    def __setitem__(self, header, value):
+        """Value may be either a string, or an iterable of strings."""
+        if is_text(value):
+            value = [value]
+
+        if header.upper() not in self._headers:
+            self._order.append(header)
+        self._headers[header.upper()] = value
+
+    def __delitem__(self, header):
+        """Remove the header from the dict, and from the order list."""
+        self._ensure_contains(header)
+
+        header_key = header.upper()
+        del self._headers[header_key]
+        self._order = [key for key in self._order if key.upper != header_key]
+
+    def __iter__(self):
+        """Yield each header-value pair."""
+        for header in self._order:
+            for value in self._headers[header.upper()]:
+                yield header, value
 
 
 def environ_property(key, default=None):
@@ -77,14 +133,16 @@ class Response(object):
 
     """WSGI response object."""
 
-    def __init__(self, data='', code=200, charset='utf-8'):
+    def __init__(self, data='', code=200, mimetype='text/plain',
+                 charset='utf-8'):
         if isinstance(data, (bytes, type(u''))):
             self.response = [data]
         else:
             self.response = data
         self.status_code = code
         self.charset = charset
-        self.headers = []
+        self.headers = Headers()
+        self.headers['Content-Type'] = mimetype
 
     def _get_status_code(self):
         return self._status_code

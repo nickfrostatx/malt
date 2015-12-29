@@ -2,6 +2,7 @@
 """This module contains the WSGI application object."""
 
 from functools import partial
+from .exceptions import HTTPException
 from .wrappers import Request, Response
 import sys
 try:
@@ -57,24 +58,29 @@ class Malt(object):
         try:
             url_rule = self.url_map[request.path]
         except KeyError:
-            return Response(b'Not found\n', 404)
+            raise HTTPException(b'Not found\n', 404)
 
         # Method matching
         try:
             view = url_rule[request.method]
         except KeyError:
-            return Response(b'Method not allowed\n', 405)
+            raise HTTPException(b'Method not allowed\n', 405)
 
         try:
             response = view(request)
+        except HTTPException:
+            raise
         except:
-            return Response(b'Internal server error\n', 500)
+            raise HTTPException(b'Internal server error\n', 500)
 
         return response
 
     def wsgi_app(self, environ, start_response):
         request = Request(environ)
-        response = self.dispatch(request)
+        try:
+            response = self.dispatch(request)
+        except HTTPException as exc:
+            response = exc
         start_response(response.status, response.headers)
         return response
 
