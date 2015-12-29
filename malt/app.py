@@ -81,7 +81,7 @@ class Malt(object):
             response = self.dispatch(request)
         except HTTPException as exc:
             response = exc
-        start_response(response.status, response.headers)
+        start_response(response.status, list(response.headers))
         return response
 
     __call__ = wsgi_app
