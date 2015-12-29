@@ -39,7 +39,7 @@ class Headers(object):
 
     """Header data structure.
 
-    An appropriate name would be an ordered multi-dict.
+    An appropriate description would be an ordered multi-dict.
 
     >>> headers = Headers()
     >>> headers['X-Abc'] = 'apple'
