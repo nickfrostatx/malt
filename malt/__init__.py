@@ -8,6 +8,7 @@ Minimalistic WSGI framework.
 
 from .app import Malt
 from .exceptions import HTTPException
+from .util import json_response as json
 from .wrappers import Request, Response
 
 __author__ = 'Nick Frost'

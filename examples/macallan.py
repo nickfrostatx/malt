@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from malt import Malt, Response
+from malt import Malt, Response, json
 from wsgiref.simple_server import make_server
 
 app = Malt()
@@ -18,11 +18,11 @@ def hello(request):
 
 @app.get('/tasks')
 def hello(request):
-    return Response(
-        '1. Buy groceries\n'
-        '2. Clean the patio\n'
-        '3. Take over the world\n'
-    )
+    return json({'tasks': [
+        'Buy groceries',
+        'Clean the patio',
+        'Take over the world',
+    ]})
 
 
 @app.post('/tasks')
