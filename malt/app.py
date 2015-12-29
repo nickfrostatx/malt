@@ -52,35 +52,33 @@ class Malt(object):
     delete = method_router('DELETE')
     del method_router
 
+    def handle_error(self, exc):
+        return Response('%s\n' % exc.message, code=exc.status_code)
+
     def dispatch(self, request):
         """Determine the correct view function, and call it."""
         # URL endpoint matching
         try:
             url_rule = self.url_map[request.path]
         except KeyError:
-            raise HTTPException(b'Not found\n', 404)
+            return self.handle_error(HTTPException(404))
 
         # Method matching
         try:
             view = url_rule[request.method]
         except KeyError:
-            raise HTTPException(b'Method not allowed\n', 405)
+            return self.handle_error(HTTPException(405))
 
         try:
-            response = view(request)
-        except HTTPException:
-            raise
+            return view(request)
+        except HTTPException as exc:
+            return self.handle_error(exc)
         except:
-            raise HTTPException(b'Internal server error\n', 500)
-
-        return response
+            return self.handle_error(HTTPException(500))
 
     def wsgi_app(self, environ, start_response):
         request = Request(environ)
-        try:
-            response = self.dispatch(request)
-        except HTTPException as exc:
-            response = exc
+        response = self.dispatch(request)
         start_response(response.status, list(response.headers))
         return response
 

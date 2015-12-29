@@ -15,7 +15,7 @@ def app():
 
     @app.get('/forbidden')
     def forbidden(request):
-        raise HTTPException('Forbidden\n', code=403)
+        raise HTTPException(403, 'Not allowed, man')
 
     @app.get('/internal')
     def internal(request):
@@ -25,11 +25,12 @@ def app():
 
 
 requests = [
-    ('GET', '/forbidden', 403, '403 Forbidden', b'Forbidden\n'),
-    ('GET', '/asdf', 404, '404 Not Found', b'Not found\n'),
-    ('POST', '/', 405, '405 Method Not Allowed', b'Method not allowed\n'),
+    ('GET', '/', 200, '200 OK', b'Hello World!\n'),
+    ('GET', '/forbidden', 403, '403 Forbidden', b'Not allowed, man\n'),
+    ('GET', '/asdf', 404, '404 Not Found', b'Not Found\n'),
+    ('POST', '/', 405, '405 Method Not Allowed', b'Method Not Allowed\n'),
     ('GET', '/internal', 500, '500 Internal Server Error',
-        b'Internal server error\n'),
+        b'Internal Server Error\n'),
 ]
 
 
@@ -45,12 +46,10 @@ def test_wsgi_exceptions(app):
             'PATH_INFO': url,
         }
 
-        with pytest.raises(HTTPException) as exc_info:
-            app.dispatch(Request(environ))
-        resp = exc_info.value
+        resp = app.dispatch(Request(environ))
+        assert list(resp) == [text]
         assert resp.status_code == status_code
         assert resp.status == status
-        assert list(resp) == [text]
 
         for fn in (app.wsgi_app, app):
             assert list(fn(environ, start_request)) == [text]
