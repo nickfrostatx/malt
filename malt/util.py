@@ -7,4 +7,4 @@ from .wrappers import Response
 
 def json_response(data, **kwargs):
     kwargs.setdefault('mimetype', 'application/json')
-    return Response(dumps(data, separators=(',',':')), **kwargs)
+    return Response(dumps(data, separators=(',', ':')), **kwargs)
