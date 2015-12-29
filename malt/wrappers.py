@@ -90,13 +90,6 @@ class Headers(object):
                 yield header, value
 
 
-def environ_property(key, default=None):
-    @property
-    def getter(self):
-        return self.environ.get(key, default)
-    return getter
-
-
 class Request(object):
 
     """WSGI request wrapper."""
@@ -104,6 +97,12 @@ class Request(object):
     def __init__(self, environ):
         self.environ = environ
         self.headers = EnvironHeaders(environ)
+
+    def environ_property(key):
+        @property
+        def get_property(self):
+            return self.environ.get(key)
+        return get_property
 
     method = environ_property('REQUEST_METHOD')
     path = environ_property('PATH_INFO')
@@ -113,6 +112,7 @@ class Request(object):
     scheme = environ_property('wsgi.url_scheme')
     protocol = environ_property('SERVER_PROTOCOL')
     query_string = environ_property('QUERY_STRING')
+    del environ_property
 
     @property
     def url(self):
