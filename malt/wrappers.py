@@ -2,8 +2,8 @@
 """WSGI wrapper objects."""
 
 from functools import partial
+from .helpers import is_text, unicode_type
 from .http import HTTP_STATUS_CODES
-from .util import is_text
 
 
 class EnvironHeaders(object):
@@ -159,7 +159,7 @@ class Response(object):
 
     def __iter__(self):
         for chunk in self.response:
-            if isinstance(chunk, type(u'')):
+            if isinstance(chunk, unicode_type):
                 yield chunk.encode(self.charset)
             else:
                 yield chunk
