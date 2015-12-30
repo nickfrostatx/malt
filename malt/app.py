@@ -58,16 +58,11 @@ class Malt(object):
     def dispatch(self, request):
         """Determine the correct view function, and call it."""
         # URL endpoint matching
-        try:
-            url_rule = self.url_map[request.path]
-        except KeyError:
+        if request.path not in self.url_map:
             return self.handle_error(HTTPException(404))
-
-        # Method matching
-        try:
-            view = url_rule[request.method]
-        except KeyError:
+        if request.method not in self.url_map[request.path]:
             return self.handle_error(HTTPException(405))
+        view = self.url_map[request.path][request.method]
 
         try:
             return view(request)
