@@ -66,10 +66,10 @@ class Malt(object):
 
         try:
             return view(request)
-        except HTTPException as exc:
+        except Exception as exc:
+            if not isinstance(exc, HTTPException):
+                exc = HTTPException(500, exception=exc)
             return self.handle_error(exc)
-        except:
-            return self.handle_error(HTTPException(500))
 
     def wsgi_app(self, environ, start_response):
         request = Request(environ)
