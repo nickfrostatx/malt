@@ -9,6 +9,10 @@ import pytest
 def app():
     app = Malt()
 
+    @app.error_handler
+    def handle(error):
+        return Response('%s\n' % error.message, code=error.status_code)
+
     @app.get('/')
     def root(request):
         return Response('Hello World!\n')

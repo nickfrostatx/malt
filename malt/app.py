@@ -3,8 +3,8 @@
 
 from functools import partial
 from .exceptions import HTTPException
+from .routing import Router
 from .wrappers import Request, Response
-import sys
 try:
     from urllib.parse import urlencode
 except ImportError:
@@ -16,34 +16,24 @@ class Malt(object):
     """The application object."""
 
     def __init__(self):
-        self.url_map = {}
-        self.view_map = {}
-
-    def add_rule(self, method, url, view):
-        """Add the """
-        if url not in self.url_map:
-            self.url_map[url] = {}
-
-        if method in self.url_map[url]:
-            raise Exception('Duplicate route: {0} {1}'.format(method, url))
-
-        self.url_map[url][method] = view
-        self.view_map[view] = url
-
-        return view
+        self.router = Router()
+        self._error_handler = self.default_error_handler
+        self._before_request = []
+        self._after_request = []
 
     def url_for(self, view, **params):
         """Return the url for a particular view function."""
-        if view not in self.view_map:
-            raise Exception('The view %r is not registered to a url' % view)
-        url = self.view_map[view]
+        url = self.router.path_for(view)
         if params:
             url += '?' + urlencode(params)
         return url
 
     def method_router(method):
         def route(self, url):
-            return partial(self.add_rule, method, url)
+            def add(fn):
+                self.router.add_rule(method, url, fn)
+                return fn
+            return add
         return route
 
     get = method_router('GET')
@@ -52,24 +42,71 @@ class Malt(object):
     delete = method_router('DELETE')
     del method_router
 
-    def handle_error(self, exc):
-        return Response('%s\n' % exc.message, code=exc.status_code)
+    def default_error_handler(self, exception):
+        html = '''<!doctype html>
+<html>
+<head><title>{status_code} {message}</title></head>
+<body>
+<center><h1>{status_code} {message}</h1></center>
+</body>
+</html>
+'''.format(status_code=exception.status_code, message=exception.message)
+        return Response(html, code=exception.status_code, mimetype='text/html')
 
-    def dispatch(self, request):
+    def error_handler(self, fn):
+        """Register a new error handler, replacing the existing one."""
+        self._error_handler = fn
+        return fn
+
+    def handle_error(self, error, handler=None):
+        if handler is None:
+            handler = self._error_handler
+        if not isinstance(error, HTTPException):
+            error = HTTPException(500, exception=error)
+        try:
+            return handler(error)
+        except Exception as exc:
+            print(exc)
+            return self.handle_error(exc, handler=self.default_error_handler)
+
+    def before_request(self):
+        self._before_request.append(fn)
+
+    def after_request(self, fn):
+        self._after_request.append(fn)
+
+    def call_view(self, request):
         """Determine the correct view function, and call it."""
         # URL endpoint matching
-        if request.path not in self.url_map:
-            return self.handle_error(HTTPException(404))
-        if request.method not in self.url_map[request.path]:
-            return self.handle_error(HTTPException(405))
-        view = self.url_map[request.path][request.method]
-
         try:
-            return view(request)
+            view = self.router.get_view(request.method, request.path)
+        except LookupError as exc:
+            if exc.args[0] == 'No such path':
+                raise HTTPException(404, exception=exc)
+            elif exc.args[0] == 'No such method':
+                raise HTTPException(405, exception=exc)
+            else:
+                raise
+        return view(request)
+
+    def controlled_run(self, fn, *args):
+        """Call fn using args. Handle any errors."""
+        try:
+            response = fn(*args)
         except Exception as exc:
-            if not isinstance(exc, HTTPException):
-                exc = HTTPException(500, exception=exc)
-            return self.handle_error(exc)
+            response = self.handle_error(exc)
+        return response
+
+    def dispatch(self, request):
+        for fn in self._before_request:
+            response = self.controlled_run(fn, request)
+            if response is not None:
+                break
+        else:
+            response = self.controlled_run(self.call_view, request)
+        for fn in self._after_request:
+            response = self.controlled_run(fn, request, response)
+        return response
 
     def wsgi_app(self, environ, start_response):
         request = Request(environ)

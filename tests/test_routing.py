@@ -23,7 +23,11 @@ def test_base_routing():
     def root(request):
         return Response('Hello World!\n')
 
-    assert app.url_map == {'/': {'GET': root}}
+    @app.post('/')
+    def post_home(request):
+        return Response()
+
+    assert app.router.path_map == {'/': {'GET': root, 'POST': post_home}}
 
 
 def test_duplicate_route(app):
@@ -40,10 +44,6 @@ def test_duplicate_route(app):
     with pytest.raises(Exception) as exc_info:
         decorator(view)
     assert 'Duplicate route: POST /' in str(exc_info)
-
-    with pytest.raises(Exception) as exc_info:
-        app.add_rule('GET', '/', view)
-    assert 'Duplicate route: GET /' in str(exc_info)
 
 
 def test_url_for(app):
