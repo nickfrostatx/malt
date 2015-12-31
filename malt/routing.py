@@ -11,6 +11,11 @@ class Router(object):
         self.view_map = {}
 
     def add_rule(self, method, path, view):
+        """Store the view and rule relation in the two lookup maps.
+
+        The view gets stored under the path and method in the path_map
+        matrix. The path/method rule is stored under view in view_map.
+        """
         self.path_map.setdefault(path, {})
         rule = self.path_map[path]
         if method in rule:
@@ -19,6 +24,7 @@ class Router(object):
         self.view_map[view] = method, path
 
     def get_view(self, method, path):
+        """Look up the view """
         if path not in self.path_map:
             raise LookupError('No such path')
         if method not in self.path_map[path]:
