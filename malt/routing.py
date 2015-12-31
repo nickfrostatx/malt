@@ -33,8 +33,5 @@ class Router(object):
         return self.path_map[path][method]
 
     def path_for(self, view):
-        try:
-            method, path = self.view_map[view]
-            return path
-        except KeyError:
-            raise Exception('The view %r is not registered to a url' % view)
+        method, path = self.view_map[view]
+        return path
