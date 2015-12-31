@@ -66,7 +66,6 @@ class Malt(object):
         try:
             return handler(error)
         except Exception as exc:
-            print(exc)
             return self.handle_error(exc, handler=self.default_error_handler)
 
     def before_request(self):
