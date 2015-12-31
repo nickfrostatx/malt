@@ -21,7 +21,8 @@ class Router(object):
         if method in rule:
             raise Exception('Duplicate route: {0} {1}'.format(method, path))
         rule[method] = view
-        self.view_map[view] = method, path
+        if view not in self.view_map:
+            self.view_map[view] = method, path
 
     def get_view(self, method, path):
         """Look up the view """
