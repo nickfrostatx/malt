@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test that the package exists and has specified metadata."""
+"""Test the router."""
 
 from malt.routing import Router
 import pytest
