@@ -31,4 +31,5 @@ def hello(request):
 
 
 server = make_server('localhost', 5000, app)
+print('Running locally on http://localhost:5000')
 server.serve_forever()
