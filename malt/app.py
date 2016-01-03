@@ -58,15 +58,14 @@ class Malt(object):
         self._error_handler = fn
         return fn
 
-    def handle_error(self, error, handler=None):
-        if handler is None:
-            handler = self._error_handler
+    def handle_error(self, error):
         if not isinstance(error, HTTPException):
-            error = HTTPException(500, exception=error)
+            error = HTTPException(exception=error)
         try:
-            return handler(error)
+            response = self._error_handler(error)
         except Exception as exc:
-            return self.handle_error(exc, handler=self.default_error_handler)
+            response = self.default_error_handler(HTTPException(exception=exc))
+        return response
 
     def before_request(self):
         self._before_request.append(fn)
@@ -88,7 +87,7 @@ class Malt(object):
                 raise
         return view(request)
 
-    def controlled_run(self, fn, *args):
+    def get_response(self, fn, *args):
         """Call fn using args. Handle any errors."""
         try:
             response = fn(*args)
@@ -98,13 +97,13 @@ class Malt(object):
 
     def dispatch(self, request):
         for fn in self._before_request:
-            response = self.controlled_run(fn, request)
+            response = self.get_response(fn, request)
             if response is not None:
                 break
         else:
-            response = self.controlled_run(self.call_view, request)
+            response = self.get_response(self.call_view, request)
         for fn in self._after_request:
-            response = self.controlled_run(fn, request, response)
+            response = self.get_response(fn, request, response)
         return response
 
     def wsgi_app(self, environ, start_response):
