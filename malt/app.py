@@ -67,7 +67,7 @@ class Malt(object):
             response = self.default_error_handler(HTTPException(exception=exc))
         return response
 
-    def before_request(self):
+    def before_request(self, fn):
         self._before_request.append(fn)
 
     def after_request(self, fn):
