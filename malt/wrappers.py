@@ -3,7 +3,7 @@
 
 from functools import partial
 from .helpers import is_text, unicode_type
-from .http import HTTP_STATUS_CODES
+from .http import HTTP_STATUS_CODES, MIME_PLAIN
 
 
 class EnvironHeaders(object):
@@ -133,7 +133,7 @@ class Response(object):
 
     """WSGI response object."""
 
-    def __init__(self, data='', code=200, mimetype='text/plain',
+    def __init__(self, data='', code=200, mimetype=MIME_PLAIN,
                  charset='utf-8'):
         if isinstance(data, (bytes, type(u''))):
             self.response = [data]

@@ -63,7 +63,7 @@ def test_url():
 
 def test_headers():
     request = Request({
-        'CONTENT_TYPE': 'text/plain',
+        'CONTENT_TYPE': 'text/plain; charset=utf-8',
         'CONTENT_LENGTH': '42',
         'HTTP_X_AUTH_KEY': 'the auth key',
     })
@@ -75,8 +75,8 @@ def test_headers():
         request.headers['X-Missing']
     assert exc_info.value.args[0] == 'X-Missing'
 
-    assert request.headers.get('X-Missing') == None
+    assert request.headers.get('X-Missing') is None
     assert request.headers.get('X-Missing', 'abc') == 'abc'
 
-    assert request.headers['Content-Type'] == 'text/plain'
+    assert request.headers['Content-Type'] == 'text/plain; charset=utf-8'
     assert request.headers['Content-Length'] == '42'

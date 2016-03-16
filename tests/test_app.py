@@ -57,7 +57,8 @@ def test_wsgi_exceptions(app):
 
         for fn in (app.wsgi_app, app):
             assert list(fn(environ, start_request)) == [text]
-            assert arr[0] == (status, [('Content-Type', 'text/plain')])
+            assert arr[0] == (status, [('Content-Type',
+                                        'text/plain; charset=utf-8')])
 
 
 def test_dispatch(app):

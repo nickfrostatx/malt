@@ -63,3 +63,7 @@ HTTP_STATUS_CODES = {
     507: 'Insufficient Storage',
     510: 'Not Extended',
 }
+
+MIME_HTML = 'text/html; charset=utf-8'
+MIME_JSON = 'application/json; charset=utf-8'
+MIME_PLAIN = 'text/plain; charset=utf-8'

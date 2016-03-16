@@ -3,6 +3,7 @@
 
 from functools import partial
 from .exceptions import HTTPException
+from .http import MIME_HTML
 from .routing import Router
 from .wrappers import Request, Response
 try:
@@ -51,7 +52,7 @@ class Malt(object):
 </body>
 </html>
 '''.format(status_code=exception.status_code, message=exception.message)
-        return Response(html, code=exception.status_code, mimetype='text/html')
+        return Response(html, code=exception.status_code, mimetype=MIME_HTML)
 
     def error_handler(self, fn):
         """Register a new error handler, replacing the existing one."""
