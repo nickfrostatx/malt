@@ -55,13 +55,14 @@ def test_alternate_charsets():
 
 def test_response_headers():
     response = Response()
-    assert list(response.headers) == [('Content-Type', 'text/plain')]
+    assert list(response.headers) == [('Content-Type',
+                                       'text/plain; charset=utf-8')]
     response.headers['X-Powered-By'] = ['Coffee', 'Ramen']
     assert list(response.headers) == [
-        ('Content-Type', 'text/plain'), ('X-Powered-By', 'Coffee'),
-        ('X-Powered-By', 'Ramen')]
+        ('Content-Type', 'text/plain; charset=utf-8'),
+        ('X-Powered-By', 'Coffee'), ('X-Powered-By', 'Ramen')]
 
-    assert response.headers['Content-Type'] == 'text/plain'
+    assert response.headers['Content-Type'] == 'text/plain; charset=utf-8'
     assert response.headers['X-Powered-By'] == 'Coffee'
 
     del response.headers['X-Powered-By']
