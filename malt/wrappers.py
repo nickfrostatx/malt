@@ -28,6 +28,13 @@ class EnvironHeaders(object):
             # Use the original header key in the exception message
             raise KeyError(header)
 
+    def __iter__(self):
+        """Iterate through header keys (same behavior as a dict)."""
+        for env_key in self.environ:
+            if env_key.startswith('HTTP_'):
+                key = env_key[5:]
+                yield '-'.join(part.capitalize() for part in key.split('_'))
+
     def get(self, key, default=None):
         try:
             return self.__getitem__(key)
@@ -111,6 +118,7 @@ class Request(object):
     port = environ_property('SERVER_PORT')
     scheme = environ_property('wsgi.url_scheme')
     protocol = environ_property('SERVER_PROTOCOL')
+    remote_addr = environ_property('REMOTE_ADDR')
     query_string = environ_property('QUERY_STRING')
     del environ_property
 
