@@ -10,7 +10,7 @@ Malt
 .. image:: https://img.shields.io/pypi/v/malt.svg
     :target: https://pypi.python.org/pypi/malt
 
-.. image:: https://img.shields.io/pypi/l/malt.svg
+.. image:: https://img.shields.io/badge/license-MIT-blue.svg
     :target: https://raw.githubusercontent.com/nickfrostatx/malt/master/LICENSE
 
 My toy WSGI microframework.
