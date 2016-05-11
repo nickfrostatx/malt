@@ -8,4 +8,6 @@ from .wrappers import Response
 
 def json_response(data, **kwargs):
     kwargs.setdefault('mimetype', MIME_JSON)
-    return Response(dumps(data, separators=(',', ':')), **kwargs)
+    text = dumps(data, separators=(',', ':'), ensure_ascii=False,
+                 sort_keys=True)
+    return Response(text, **kwargs)

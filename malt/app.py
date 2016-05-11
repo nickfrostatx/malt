@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """This module contains the WSGI application object."""
 
-from functools import partial
 from .exceptions import HTTPException
 from .http import MIME_HTML
 from .routing import Router
 from .wrappers import Request, Response
+import traceback
 try:
     from urllib.parse import urlencode
 except ImportError:
@@ -61,6 +61,7 @@ class Malt(object):
 
     def handle_error(self, error):
         if not isinstance(error, HTTPException):
+            traceback.print_exc()
             error = HTTPException(exception=error)
         try:
             response = self._error_handler(error)

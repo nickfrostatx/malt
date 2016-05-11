@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """WSGI wrapper objects."""
 
-from functools import partial
+from .exceptions import HTTPException
 from .helpers import is_text, unicode_type
 from .http import HTTP_STATUS_CODES, MIME_PLAIN
+import json
 
 
 class EnvironHeaders(object):
@@ -27,6 +28,13 @@ class EnvironHeaders(object):
         except KeyError:
             # Use the original header key in the exception message
             raise KeyError(header)
+
+    def __contains__(self, key):
+        try:
+            self.__getitem__(key)
+        except KeyError:
+            return False
+        return True
 
     def __iter__(self):
         """Iterate through header keys (same behavior as a dict)."""
@@ -111,6 +119,8 @@ class Request(object):
             return self.environ.get(key)
         return get_property
 
+    charset = 'utf-8'
+
     method = environ_property('REQUEST_METHOD')
     path = environ_property('PATH_INFO')
     script_name = environ_property('SCRIPT_NAME')
@@ -120,7 +130,30 @@ class Request(object):
     protocol = environ_property('SERVER_PROTOCOL')
     remote_addr = environ_property('REMOTE_ADDR')
     query_string = environ_property('QUERY_STRING')
+    stream = environ_property('wsgi.input')
     del environ_property
+
+    @property
+    def raw(self):
+        content_type = self.headers.get('Content-Length')
+        if content_type:
+            try:
+                size = int(content_type)
+            except ValueError:
+                raise HTTPException(400)
+            return self.stream.read(size)
+        return b''
+
+    @property
+    def json(self):
+        content_type = self.headers.get('Content-Type', '')
+        prefix = 'application/json; charset='
+        if content_type.startswith(prefix):
+            self.charset = content_type[len(prefix):]
+        try:
+            return json.loads(self.raw.decode(self.charset))
+        except ValueError:
+            raise HTTPException(400)
 
     @property
     def url(self):

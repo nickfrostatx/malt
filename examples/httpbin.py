@@ -31,6 +31,27 @@ def headers(request):
     })
 
 
+@app.get('/get')
+def get(request):
+    return json({
+        'args': {},
+        'headers': headers_dict(request.headers),
+        'origin': request.remote_addr,
+        'url': request.url,
+    })
+
+
+@app.post('/post')
+def post(request):
+    return json({
+        'args': {},
+        'data': request.data,
+        'headers': headers_dict(request.headers),
+        'origin': request.remote_addr,
+        'url': request.url,
+    })
+
+
 if __name__ == '__main__':
     server = make_server('localhost', 5000, app)
     print('Running locally on http://localhost:5000')
