@@ -65,7 +65,16 @@ def test_response_headers():
     assert response.headers['Content-Type'] == 'text/plain; charset=utf-8'
     assert response.headers['X-Powered-By'] == 'Coffee'
 
-    del response.headers['X-Powered-By']
-    with pytest.raises(KeyError) as exc_info:
-        response.headers['X-Abc']
-    assert exc_info.value.args[0] == 'X-Abc'
+    del response.headers['x-powered-by']
+    for key in ('X-Powered-By', 'X-Abc'):
+        with pytest.raises(KeyError) as exc_info:
+            response.headers[key]
+        assert exc_info.value.args[0] == key
+
+    response.headers.add('X-Snoop-Options', 'nosnoop')
+    response.headers.add('Set-Cookie', 'a=b')
+    response.headers.add('set-cookie', 'c=d')
+    assert list(response.headers) == [
+        ('Content-Type', 'text/plain; charset=utf-8'),
+        ('X-Snoop-Options', 'nosnoop'),
+        ('Set-Cookie', 'a=b'), ('Set-Cookie', 'c=d')]

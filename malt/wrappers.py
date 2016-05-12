@@ -90,13 +90,23 @@ class Headers(object):
             self._order.append(header)
         self._headers[header.upper()] = value
 
+    def add(self, header, value):
+        """Add a new key-value pair, without overwriting."""
+        if not is_text(value):
+            raise TypeError('Headers.add expects value to be text')
+
+        if header.upper() not in self._headers:
+            self._order.append(header)
+            self._headers[header.upper()] = []
+        self._headers[header.upper()].append(value)
+
     def __delitem__(self, header):
         """Remove the header from the dict, and from the order list."""
         self._ensure_contains(header)
 
         header_key = header.upper()
         del self._headers[header_key]
-        self._order = [key for key in self._order if key.upper != header_key]
+        self._order = [key for key in self._order if key.upper() != header_key]
 
     def __iter__(self):
         """Yield each header-value pair."""
