@@ -39,9 +39,13 @@ class EnvironHeaders(object):
     def __iter__(self):
         """Iterate through header keys (same behavior as a dict)."""
         for env_key in self.environ:
-            if env_key.startswith('HTTP_'):
+            if env_key in ('CONTENT_TYPE', 'CONTENT_LENGTH'):
+                key = env_key
+            elif env_key.startswith('HTTP_'):
                 key = env_key[5:]
-                yield '-'.join(part.capitalize() for part in key.split('_'))
+            else:
+                continue
+            yield '-'.join(part.capitalize() for part in key.split('_'))
 
     def get(self, key, default=None):
         try:

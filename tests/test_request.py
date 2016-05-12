@@ -80,3 +80,11 @@ def test_headers():
 
     assert request.headers['Content-Type'] == 'text/plain; charset=utf-8'
     assert request.headers['Content-Length'] == '42'
+
+    assert 'X-Missing' not in request.headers
+    assert 'Content-Type' in request.headers
+    assert 'CoNtEnT-LeNgTh' in request.headers
+    assert 'x-AuTh-KeY' in request.headers
+
+    assert set(request.headers) == set(['Content-Type', 'Content-Length',
+                                        'X-Auth-Key'])
