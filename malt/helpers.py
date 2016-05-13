@@ -2,6 +2,7 @@
 """Some utility functions."""
 
 text_type = type(u'')
+WSGI_WANT_BYTES = (type('') == bytes)
 
 
 def is_string(value):

@@ -2,7 +2,7 @@
 """WSGI wrapper objects."""
 
 from .exceptions import HTTPException
-from .helpers import is_string, want_bytes, want_text
+from .helpers import is_string, WSGI_WANT_BYTES, want_bytes, want_text
 from .http import HTTP_STATUS_CODES, MIME_PLAIN
 import json
 
@@ -75,8 +75,12 @@ class Headers(object):
         self._headers = {}
         self._order = []
 
-    def _key_for(self, key):
-        return want_bytes(key.upper(), 'latin1')
+    def _key_for(self, header):
+        key = header.upper()
+        if WSGI_WANT_BYTES:
+            return want_bytes(key, 'latin1')
+        else:
+            return want_text(key, 'utf-8')
 
     def _ensure_contains(self, header):
         """Raise a KeyError if the given header does not exist."""
