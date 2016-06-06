@@ -88,3 +88,9 @@ def test_headers():
 
     assert set(request.headers) == set(['Content-Type', 'Content-Length',
                                         'X-Auth-Key'])
+
+
+def test_cookies():
+    request = Request({
+        'HTTP_COOKIE': 'a=b; %FF=%FF',
+    })
