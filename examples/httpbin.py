@@ -5,6 +5,13 @@ from wsgiref.simple_server import make_server
 app = Malt()
 
 
+@app.error_handler
+def err_response(exc):
+    return json({
+        'msg': exc.message,
+    }, pretty=True, code=exc.status_code)
+
+
 def headers_dict(headers):
     data = {}
     for key in headers:
@@ -21,14 +28,14 @@ def ip(request):
 def user_agent(request):
     return json({
         'user-agent': request.headers.get('User-Agent'),
-    })
+    }, pretty=True)
 
 
 @app.get('/headers')
 def headers(request):
     return json({
         'headers': headers_dict(request.headers),
-    })
+    }, pretty=True)
 
 
 @app.get('/get')
@@ -38,7 +45,7 @@ def get(request):
         'headers': headers_dict(request.headers),
         'origin': request.remote_addr,
         'url': request.url,
-    })
+    }, pretty=True)
 
 
 @app.post('/post')
@@ -49,7 +56,7 @@ def post(request):
         'headers': headers_dict(request.headers),
         'origin': request.remote_addr,
         'url': request.url,
-    })
+    }, pretty=True)
 
 
 if __name__ == '__main__':
