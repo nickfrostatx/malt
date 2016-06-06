@@ -5,6 +5,10 @@ from .exceptions import HTTPException
 from .helpers import is_string, WSGI_WANT_BYTES, want_bytes, want_text
 from .http import HTTP_STATUS_CODES, MIME_PLAIN
 import json
+try:
+    from urllib.parse import quote, unquote
+except ImportError:
+    from urllib import quote, unquote
 
 
 class EnvironHeaders(object):
@@ -126,9 +130,31 @@ class Headers(object):
         """Yield each header-value pair."""
         for header in self._order:
             for value in self._headers[self._key_for(header)]:
-                header_enc = want_bytes(header, 'latin1')
-                value_enc = want_bytes(value, 'latin1')
+                if WSGI_WANT_BYTES:
+                    header_enc = want_bytes(header, 'latin1')
+                    value_enc = want_bytes(value, 'latin1')
+                else:
+                    header_enc = want_text(header, 'utf-8')
+                    value_enc = want_text(value, 'utf-8')
                 yield header_enc, value_enc
+
+
+def parse_cookies(header):
+    cookies = {}
+    for kv in header.split(u'; '):
+        parts = kv.split(u'=', 1)
+        if len(parts) == 2:
+            k, v = parts
+        else:
+            k, v = parts[0], None
+        cookies[unquote(k)] = unquote(v)
+    return cookies
+
+
+def dump_cookie(key, value, **kwargs):
+    cookie = quote(key)
+    if value is not None:
+        cookie += u'=' + quote(value)
 
 
 class Request(object):
@@ -195,6 +221,12 @@ class Request(object):
             url += '?' + self.query_string
         return url
 
+    @property
+    def cookies(self):
+        if not hasattr(self, '_cookies'):
+            self._cookies = parse_cookies(self.headers['Cookie'])
+        return self._cookies
+
 
 class Response(object):
 
@@ -227,3 +259,6 @@ class Response(object):
     def __iter__(self):
         for chunk in self.response:
             yield want_bytes(chunk, charset=self.charset)
+
+    def set_cookie(self, key, value=None, ):
+        self.headers.add('Set-Cookie', dump_cookie())
