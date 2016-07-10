@@ -55,26 +55,26 @@ def test_alternate_charsets():
 
 def test_response_headers():
     response = Response()
-    assert list(response.headers) == [(b'Content-Type',
-                                       b'text/plain; charset=utf-8')]
-    response.headers['X-Powered-By'] = [b'Coffee', 'Ramen']
+    assert list(response.headers) == [('Content-Type',
+                                       'text/plain; charset=utf-8')]
+    response.headers[u'X-Powered-By'] = [b'Coffee', u'Ramen']
     assert list(response.headers) == [
-        (b'Content-Type', b'text/plain; charset=utf-8'),
-        (b'X-Powered-By', b'Coffee'), (b'X-Powered-By', b'Ramen')]
+        ('Content-Type', 'text/plain; charset=utf-8'),
+        ('X-Powered-By', 'Coffee'), ('X-Powered-By', 'Ramen')]
 
-    assert response.headers['Content-Type'] == 'text/plain; charset=utf-8'
-    assert response.headers['X-Powered-By'] == b'Coffee'
+    assert response.headers[u'Content-Type'] == u'text/plain; charset=utf-8'
+    assert response.headers[u'X-Powered-By'] == b'Coffee'
 
     del response.headers[b'x-powered-by']
-    for key in ('X-Powered-By', 'X-Abc'):
+    for key in (u'X-Powered-By', u'X-Abc'):
         with pytest.raises(KeyError) as exc_info:
             response.headers[key]
         assert exc_info.value.args[0] == key
 
-    response.headers.add('X-Snoop-Options', 'nosnoop')
-    response.headers.add(b'Set-Cookie', 'a=b')
-    response.headers.add('set-cookie', b'c=d')
+    response.headers.add(u'X-Snoop-Options', u'nosnoop')
+    response.headers.add(b'Set-Cookie', u'a=b')
+    response.headers.add(u'set-cookie', b'c=d')
     assert list(response.headers) == [
-        (b'Content-Type', b'text/plain; charset=utf-8'),
-        (b'X-Snoop-Options', b'nosnoop'),
-        (b'Set-Cookie', b'a=b'), (b'Set-Cookie', b'c=d')]
+        ('Content-Type', 'text/plain; charset=utf-8'),
+        ('X-Snoop-Options', 'nosnoop'),
+        ('Set-Cookie', 'a=b'), ('Set-Cookie', 'c=d')]

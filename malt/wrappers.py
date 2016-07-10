@@ -69,10 +69,10 @@ class Headers(object):
     >>> headers = Headers()
     >>> headers['X-Abc'] = 'apple'
     >>> list(headers)
-    [(b'X-Abc', b'apple')]
+    [('X-Abc', 'apple')]
     >>> headers['X-Green] = ['eggs', 'spam']
     >>> list(headers)
-    [(b'X-Abc', b'apple'), (b'X-Green', b'eggs'), (b'X-Green', b'spam')]
+    [('X-Abc', 'apple'), ('X-Green', 'eggs'), ('X-Green', 'spam')]
     """
 
     def __init__(self):
