@@ -176,7 +176,6 @@ class Request(object):
     method = environ_property('REQUEST_METHOD')
     path = environ_property('PATH_INFO')
     script_name = environ_property('SCRIPT_NAME')
-    host = environ_property('SERVER_NAME')
     port = environ_property('SERVER_PORT')
     scheme = environ_property('wsgi.url_scheme')
     protocol = environ_property('SERVER_PROTOCOL')
@@ -184,6 +183,10 @@ class Request(object):
     query_string = environ_property('QUERY_STRING')
     stream = environ_property('wsgi.input')
     del environ_property
+
+    @property
+    def host(self):
+        return self.headers.get('Host', self.environ.get('SERVER_NAME'))
 
     def data(self):
         if getattr(self, '_data', None) is None:

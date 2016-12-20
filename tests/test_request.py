@@ -66,11 +66,14 @@ def test_headers():
     request = Request({
         'CONTENT_TYPE': 'text/plain; charset=utf-8',
         'CONTENT_LENGTH': '42',
+        'HTTP_HOST': 'example.com',
         'HTTP_X_AUTH_KEY': 'the auth key',
+        'SERVER_NAME': 'localhost',
     })
     assert request.headers['X-Auth-Key'] == 'the auth key'
     assert request.headers.get('X-Auth-Key') == 'the auth key'
     assert request.headers.get('X-Auth-Key', 'abc') == 'the auth key'
+    assert request.host == 'example.com'
 
     with pytest.raises(KeyError) as exc_info:
         request.headers['X-Missing']
@@ -88,7 +91,7 @@ def test_headers():
     assert 'x-AuTh-KeY' in request.headers
 
     assert set(request.headers) == set(['Content-Type', 'Content-Length',
-                                        'X-Auth-Key'])
+                                        'Host', 'X-Auth-Key'])
 
 
 def test_data():
