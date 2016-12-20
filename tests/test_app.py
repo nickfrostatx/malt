@@ -2,44 +2,51 @@
 """Test that the package exists and has specified metadata."""
 
 from malt import Malt, Request, Response, HTTPException
+import malt.routing
 import pytest
 
 
-@pytest.fixture
-def app():
-    app = Malt()
-
-    @app.before_request
-    def before(request):
-        if request.path == '/before':
-            return Response(u'before_request returned\n')
-
-    @app.after_request
-    def after(request, response):
-        if request.path == '/after':
-            return Response(u'after_request returned\n')
-        return response
-
-    @app.error_handler
-    def handle(error):
-        return Response('%s\n' % error.message, code=error.status_code)
-
-    @app.get('/')
-    def root(request):
-        return Response('Hello World!\n')
-
-    @app.get('/forbidden')
-    def forbidden(request):
-        raise HTTPException(403, 'Not allowed, man')
-
-    @app.get('/internal')
-    def internal(request):
-        1/0
-
-    return app
+app = Malt()
 
 
-def test_wsgi_exceptions(app):
+@app.before_request
+def before(request):
+    if request.path == '/before':
+        return Response(u'before_request returned\n')
+
+
+@app.after_request
+def after(request, response):
+    if request.path == '/after':
+        return Response(u'after_request returned\n')
+    return response
+
+
+@app.error_handler
+def handle(error):
+    return Response('%s\n' % error.message, code=error.status_code)
+
+
+@app.get('/')
+def root(request):
+    return Response('Hello World!\n')
+
+
+@app.get('/forbidden')
+def forbidden(request):
+    raise HTTPException(403, 'Not allowed, man')
+
+
+@app.get('/internal')
+def internal(request):
+    1/0
+
+
+def not_a_view():
+    pass
+
+
+def test_wsgi_exceptions():
     arr = [None]
 
     def start_request(status, headers):
@@ -73,12 +80,24 @@ def test_wsgi_exceptions(app):
                                         'text/plain; charset=utf-8')])
 
 
-def test_dispatch(app):
-    environ = {
-        'REQUEST_METHOD': 'GET',
-        'PATH_INFO': '/',
-    }
+def test_url_for():
+    assert app.url_for(internal, search='abc') == '/internal?search=abc'
 
-    resp = app.dispatch(Request(environ))
-    assert resp.status_code
-    assert list(resp) == [b'Hello World!\n']
+    with pytest.raises(KeyError):
+        app.url_for(not_a_view)
+
+
+def test_dispatch_error(monkeypatch):
+    def raises_lookup_error(method, path):
+        raise LookupError('Some unexpected message')
+
+    monkeypatch.setattr(app.router, 'get_view', raises_lookup_error)
+
+    req = Request({
+        'REQUEST_METHOD': 'GET',
+        'PATH_INFO': '/'
+    })
+    resp = app.dispatch(req)
+    assert list(resp) == [b'Internal Server Error\n']
+    assert resp.status_code == 500
+    assert resp.status == '500 Internal Server Error'
