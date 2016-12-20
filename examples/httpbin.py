@@ -21,7 +21,9 @@ def headers_dict(headers):
 
 @app.get('/ip')
 def ip(request):
-    return json({'origin': request.remote_addr})
+    return json({
+        'origin': request.remote_addr,
+    }, pretty=True)
 
 
 @app.get('/user-agent')
