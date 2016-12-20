@@ -9,6 +9,17 @@ import pytest
 def app():
     app = Malt()
 
+    @app.before_request
+    def before(request):
+        if request.path == '/before':
+            return Response(u'before_request returned\n')
+
+    @app.after_request
+    def after(request, response):
+        if request.path == '/after':
+            return Response(u'after_request returned\n')
+        return response
+
     @app.error_handler
     def handle(error):
         return Response('%s\n' % error.message, code=error.status_code)
@@ -28,21 +39,22 @@ def app():
     return app
 
 
-requests = [
-    ('GET', '/', 200, '200 OK', b'Hello World!\n'),
-    ('GET', '/forbidden', 403, '403 Forbidden', b'Not allowed, man\n'),
-    ('GET', '/asdf', 404, '404 Not Found', b'Not Found\n'),
-    ('POST', '/', 405, '405 Method Not Allowed', b'Method Not Allowed\n'),
-    ('GET', '/internal', 500, '500 Internal Server Error',
-        b'Internal Server Error\n'),
-]
-
-
 def test_wsgi_exceptions(app):
     arr = [None]
 
     def start_request(status, headers):
         arr[0] = (status, list(headers))
+
+    requests = [
+        ('GET', '/', 200, '200 OK', b'Hello World!\n'),
+        ('GET', '/before', 200, '200 OK', b'before_request returned\n'),
+        ('GET', '/after', 200, '200 OK', b'after_request returned\n'),
+        ('GET', '/forbidden', 403, '403 Forbidden', b'Not allowed, man\n'),
+        ('GET', '/asdf', 404, '404 Not Found', b'Not Found\n'),
+        ('POST', '/', 405, '405 Method Not Allowed', b'Method Not Allowed\n'),
+        ('GET', '/internal', 500, '500 Internal Server Error',
+            b'Internal Server Error\n'),
+    ]
 
     for method, url, status_code, status, text in requests:
         environ = {
