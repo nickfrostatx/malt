@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 """Test the request wrapper."""
 
-from malt import Request
+from malt import HTTPException, Request
+import io
 import pytest
 
 
 def test_environ():
     request = Request({
-        'REQUEST_METHOD': 'GET',
         'PATH_INFO': '/',
+        'REQUEST_METHOD': 'GET',
         'SCRIPT_NAME': '/app',
         'SERVER_NAME': 'localhost',
         'SERVER_PORT': '5000',
@@ -88,6 +89,35 @@ def test_headers():
 
     assert set(request.headers) == set(['Content-Type', 'Content-Length',
                                         'X-Auth-Key'])
+
+
+def test_data():
+    def request_with_data(data, length=None):
+        if length is None:
+            length = str(len(data))
+        return Request({
+            'CONTENT_LENGTH': length,
+            'wsgi.input': io.BytesIO(data),
+        })
+
+    assert request_with_data(b'').stream.read() == b''
+    assert request_with_data(b'abc').stream.read() == b'abc'
+    assert request_with_data(b'', 'not an int').stream.read() == b''
+    assert request_with_data(b'abc', 'not an int').stream.read() == b'abc'
+
+    request_with_data(b'abc', 'not an int').data() == b''
+    assert request_with_data(b'').data() == b''
+    req = request_with_data(b'abc')
+    assert req.data() == b'abc'
+    assert req.data() == b'abc'
+    assert request_with_data(b'abc', '2').data() == b'ab'
+
+    with pytest.raises(HTTPException):
+        request_with_data(b'').json() == {}
+    with pytest.raises(HTTPException):
+        request_with_data(b'blah').json()
+    assert request_with_data(b'{}').json() == {}
+    assert request_with_data(b'{"abc": "def"}').json() == {u'abc': u'def'}
 
 
 def test_cookies():

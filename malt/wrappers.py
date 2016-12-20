@@ -185,25 +185,23 @@ class Request(object):
     stream = environ_property('wsgi.input')
     del environ_property
 
-    @property
-    def raw(self):
-        content_type = self.headers.get('Content-Length')
-        if content_type:
+    def data(self):
+        if getattr(self, '_data', None) is None:
+            content_length = self.headers.get('Content-Length', '0')
             try:
-                size = int(content_type)
+                size = int(content_length)
             except ValueError:
-                raise HTTPException(400)
-            return self.stream.read(size)
-        return b''
+                size = 0
+            self._data = self.stream.read(size)
+        return self._data
 
-    @property
     def json(self):
         content_type = self.headers.get('Content-Type', '')
         prefix = 'application/json; charset='
         if content_type.startswith(prefix):
             self.charset = content_type[len(prefix):]
         try:
-            return json.loads(self.raw.decode(self.charset))
+            return json.loads(self.data().decode(self.charset))
         except ValueError:
             raise HTTPException(400)
 

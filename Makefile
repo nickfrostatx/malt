@@ -1,5 +1,5 @@
 test:
-	py.test -vv --pep8 --cov=malt --cov-report=term-missing
+	py.test -vv --pep8 --pep257 --cov=malt --cov-report=term-missing malt tests
 
 publish:
 	python setup.py register

@@ -52,7 +52,7 @@ def get(request):
 def post(request):
     return json({
         'args': {},
-        'data': request.data,
+        'data': request.data(),
         'headers': headers_dict(request.headers),
         'origin': request.remote_addr,
         'url': request.url,
