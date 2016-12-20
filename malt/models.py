@@ -155,6 +155,7 @@ def dump_cookie(key, value, **kwargs):
     cookie = quote(key)
     if value is not None:
         cookie += u'=' + quote(value)
+    return cookie
 
 
 class Request(object):
@@ -261,5 +262,5 @@ class Response(object):
         for chunk in self.response:
             yield want_bytes(chunk, charset=self.charset)
 
-    def set_cookie(self, key, value=None, ):
-        self.headers.add('Set-Cookie', dump_cookie())
+    def set_cookie(self, key, value=None, **kwargs):
+        self.headers.add('Set-Cookie', dump_cookie(key, value, **kwargs))

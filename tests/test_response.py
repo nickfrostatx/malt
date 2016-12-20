@@ -78,3 +78,20 @@ def test_response_headers():
         ('Content-Type', 'text/plain; charset=utf-8'),
         ('X-Snoop-Options', 'nosnoop'),
         ('Set-Cookie', 'a=b'), ('Set-Cookie', 'c=d')]
+
+    with pytest.raises(TypeError) as exc_info:
+        response.headers.add(u'Set-Cookie', ['abc'])
+    assert exc_info.value.args[0] == 'Headers.add does not expect a list'
+
+
+def test_set_cookie():
+    response = Response()
+    assert list(response.headers) == [('Content-Type',
+                                       'text/plain; charset=utf-8')]
+
+    response.set_cookie(u'a', u'1')
+    response.set_cookie('b', '2')
+    assert list(response.headers)[1:] == [
+        ('Set-Cookie', 'a=1'),
+        ('Set-Cookie', 'b=2'),
+    ]

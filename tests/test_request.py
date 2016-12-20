@@ -127,3 +127,4 @@ def test_cookies():
     request = Request({
         'HTTP_COOKIE': 'a=b; %FF=%FF',
     })
+    assert request.cookies == {u'a': u'b', u'\ufffd': u'\ufffd'}
