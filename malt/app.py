@@ -3,8 +3,8 @@
 
 from .exceptions import HTTPException
 from .http import MIME_HTML
+from .models import Request, Response
 from .routing import Router
-from .wrappers import Request, Response
 import traceback
 try:
     from urllib.parse import urlencode

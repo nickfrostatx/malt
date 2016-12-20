@@ -3,7 +3,7 @@
 
 from json import dumps
 from .http import MIME_JSON
-from .wrappers import Response
+from .models import Response
 
 
 def json_response(data, pretty=False, **kwargs):
