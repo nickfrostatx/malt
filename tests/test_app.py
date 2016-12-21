@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """Test that the package exists and has specified metadata."""
 
-from malt import Malt, Request, Response, HTTPException
+from malt import Malt, Request, Response, HTTPException, json as jsonify
+import json
 import malt.routing
 import pytest
 
@@ -102,3 +103,21 @@ def test_dispatch_error(monkeypatch):
     assert list(resp) == [b'Internal Server Error\n']
     assert resp.status_code == 500
     assert resp.status == '500 Internal Server Error'
+
+
+def test_config():
+    a = Malt()
+
+    @a.get('/')
+    def dump_config(request):
+        return jsonify(request.config)
+
+    wsgi = a.wsgi_app({'a': 'b'})
+
+    environ = {
+        'REQUEST_METHOD': 'GET',
+        'PATH_INFO': '/',
+    }
+    rv = wsgi(environ, lambda status, headers: None)
+    rv_text = next(iter(rv)).decode('utf-8')
+    assert json.loads(rv_text)['a'] == 'b'
