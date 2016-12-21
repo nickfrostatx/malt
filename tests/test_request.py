@@ -95,13 +95,16 @@ def test_headers():
 
 
 def test_data():
-    def request_with_data(data, length=None):
+    def request_with_data(data, length=None, content_type=None):
         if length is None:
             length = str(len(data))
-        return Request({
+        environ = {
             'CONTENT_LENGTH': length,
             'wsgi.input': io.BytesIO(data),
-        })
+        }
+        if content_type is not None:
+            environ['CONTENT_TYPE'] = content_type
+        return Request(environ)
 
     assert request_with_data(b'').stream.read() == b''
     assert request_with_data(b'abc').stream.read() == b'abc'
@@ -121,6 +124,12 @@ def test_data():
         request_with_data(b'blah').json()
     assert request_with_data(b'{}').json() == {}
     assert request_with_data(b'{"abc": "def"}').json() == {u'abc': u'def'}
+
+    data = b'{"msg": "\xa4\xb3\xa4\xf3\xa4\xcb\xa4\xc1\xa4\xcf"}'
+    content_type = 'application/json; charset=euc-jp'
+    assert request_with_data(data, content_type=content_type).json() == {
+        u'msg': u'こんにちは',
+    }
 
 
 def test_cookies():

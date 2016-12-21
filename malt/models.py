@@ -50,7 +50,7 @@ class EnvironHeaders(object):
             elif env_key.startswith('HTTP_'):
                 key = env_key[5:]
             else:
-                continue
+                continue  # pragma: no cover
             yield '-'.join(part.capitalize() for part in key.split('_'))
 
     def get(self, key, default=None):
