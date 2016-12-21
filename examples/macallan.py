@@ -30,6 +30,8 @@ def hello(request):
     return Response('Adding a task!\n')
 
 
-server = make_server('localhost', 5000, app)
+wsgi = app.wsgi_app({})
+
+server = make_server('localhost', 5000, wsgi)
 print('Running locally on http://localhost:5000')
 server.serve_forever()

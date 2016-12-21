@@ -40,3 +40,12 @@ Usage
     @app.get('/')
     def home(request):
         return Response('Hello world')
+
+    wsgi = app.wsgi_app({})
+
+``wsgi`` is now a callable you can use from your favorite WSGI server. For
+example:
+
+.. code-block:: bash
+    
+    $ gunicorn myapp:wsgi

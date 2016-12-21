@@ -108,10 +108,10 @@ class Malt(object):
             response = self.get_response(fn, request, response)
         return response
 
-    def wsgi_app(self, environ, start_response):
-        request = Request(environ)
-        response = self.dispatch(request)
-        start_response(response.status, list(response.headers))
-        return response
-
-    __call__ = wsgi_app
+    def wsgi_app(self, config):
+        def callable(environ, start_response):
+            request = Request(environ)
+            response = self.dispatch(request)
+            start_response(response.status, list(response.headers))
+            return response
+        return callable

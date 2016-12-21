@@ -162,8 +162,9 @@ class Request(object):
 
     """WSGI request wrapper."""
 
-    def __init__(self, environ):
+    def __init__(self, environ, config=None):
         self.environ = environ
+        self.config = config
         self.headers = EnvironHeaders(environ)
 
     def environ_property(key):

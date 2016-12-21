@@ -47,6 +47,8 @@ def not_a_view():
 
 
 def test_wsgi_exceptions():
+    wsgi = app.wsgi_app({})
+
     arr = [None]
 
     def start_request(status, headers):
@@ -74,10 +76,9 @@ def test_wsgi_exceptions():
         assert resp.status_code == status_code
         assert resp.status == status
 
-        for fn in (app.wsgi_app, app):
-            assert list(fn(environ, start_request)) == [text]
-            assert arr[0] == (status, [('Content-Type',
-                                        'text/plain; charset=utf-8')])
+        assert list(wsgi(environ, start_request)) == [text]
+        assert arr[0] == (status, [('Content-Type',
+                                    'text/plain; charset=utf-8')])
 
 
 def test_url_for():

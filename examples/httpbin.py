@@ -61,7 +61,10 @@ def post(request):
     }, pretty=True)
 
 
+wsgi = app.wsgi_app({})
+
+
 if __name__ == '__main__':
-    server = make_server('localhost', 5000, app)
+    server = make_server('localhost', 5000, wsgi)
     print('Running locally on http://localhost:5000')
     server.serve_forever()
