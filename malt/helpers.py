@@ -7,7 +7,8 @@ except ImportError:
 
 
 text_type = type(u'')
-WSGI_WANT_BYTES = (type('') == bytes)
+PY2 = (str == bytes)
+WSGI_WANT_BYTES = PY2
 
 
 def is_string(value):
@@ -27,7 +28,6 @@ def want_text(value, charset='utf-8', errors='strict'):
 
 
 def unquote(string, encoding='utf-8', errors='replace'):
-    if str == text_type:
-        return unquote_native(string, encoding, errors)
-    else:
+    if PY2:
         return unquote_native(string.encode('latin1')).decode(encoding, errors)
+    return unquote_native(string, encoding, errors)
