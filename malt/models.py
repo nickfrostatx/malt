@@ -2,13 +2,13 @@
 """WSGI wrapper objects."""
 
 from .exceptions import HTTPException
-from .helpers import is_string, WSGI_WANT_BYTES, want_bytes, want_text
+from .helpers import is_string, WSGI_WANT_BYTES, want_bytes, want_text, unquote
 from .http import HTTP_STATUS_CODES, MIME_PLAIN
 import json
 try:
-    from urllib.parse import quote, unquote
+    from urllib.parse import quote
 except ImportError:
-    from urllib import quote, unquote
+    from urllib import quote
 
 
 class EnvironHeaders(object):
@@ -145,9 +145,9 @@ def parse_cookies(header):
         parts = kv.split(u'=', 1)
         if len(parts) == 2:
             k, v = parts
+            cookies[unquote(k)] = unquote(v)
         else:
-            k, v = parts[0], None
-        cookies[unquote(k)] = unquote(v)
+            cookies[unquote(parts[0])] = None
     return cookies
 
 
@@ -226,7 +226,7 @@ class Request(object):
     @property
     def cookies(self):
         if not hasattr(self, '_cookies'):
-            self._cookies = parse_cookies(self.headers['Cookie'])
+            self._cookies = parse_cookies(self.headers.get('Cookie', ''))
         return self._cookies
 
 

@@ -91,7 +91,11 @@ def test_set_cookie():
 
     response.set_cookie(u'a', u'1')
     response.set_cookie('b', '2')
+    response.set_cookie('empty_value', '')
+    response.set_cookie('key_only')
     assert list(response.headers)[1:] == [
         ('Set-Cookie', 'a=1'),
         ('Set-Cookie', 'b=2'),
+        ('Set-Cookie', 'empty_value='),
+        ('Set-Cookie', 'key_only'),
     ]

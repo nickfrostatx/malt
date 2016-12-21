@@ -125,6 +125,11 @@ def test_data():
 
 def test_cookies():
     request = Request({
-        'HTTP_COOKIE': 'a=b; %FF=%FF',
+        'HTTP_COOKIE': 'a=b; %FF=%FF; empty_value=; key_only',
     })
-    assert request.cookies == {u'a': u'b', u'\ufffd': u'\ufffd'}
+    assert request.cookies == {
+        u'a': u'b',
+        u'\ufffd': u'\ufffd',
+        u'empty_value': u'',
+        u'key_only': None,
+    }
