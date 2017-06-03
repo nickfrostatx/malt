@@ -44,7 +44,7 @@ def test_unicode_response():
 
 
 def test_alternate_charsets():
-    response = list(Response(u'böse', charset='latin')) == [b'b\xf6se']
+    assert list(Response(u'böse', charset='latin')) == [b'b\xf6se']
 
     with pytest.raises(UnicodeEncodeError):
         list(Response(u'こんにちは', charset='latin'))

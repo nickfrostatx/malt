@@ -14,7 +14,7 @@ def test_environ():
         'SERVER_NAME': 'localhost',
         'SERVER_PORT': '5000',
         'wsgi.url_scheme': 'http',
-    })
+    }, {})
     assert request.method == 'GET'
     assert request.path == '/'
     assert request.script_name == '/app'
@@ -34,7 +34,7 @@ def test_url():
             'wsgi.url_scheme': 'http',
         }
         base_environ.update(env)
-        return Request(base_environ)
+        return Request(base_environ, {})
 
     assert req({}).url == 'http://localhost:5000/app/'
     assert req({'SERVER_PORT': '80'}).url == 'http://localhost/app/'
@@ -69,7 +69,7 @@ def test_headers():
         'HTTP_HOST': 'example.com',
         'HTTP_X_AUTH_KEY': 'the auth key',
         'SERVER_NAME': 'localhost',
-    })
+    }, {})
     assert request.headers['X-Auth-Key'] == 'the auth key'
     assert request.headers.get('X-Auth-Key') == 'the auth key'
     assert request.headers.get('X-Auth-Key', 'abc') == 'the auth key'
@@ -104,7 +104,7 @@ def test_data():
         }
         if content_type is not None:
             environ['CONTENT_TYPE'] = content_type
-        return Request(environ)
+        return Request(environ, {})
 
     assert request_with_data(b'').stream.read() == b''
     assert request_with_data(b'abc').stream.read() == b'abc'
@@ -135,7 +135,7 @@ def test_data():
 def test_cookies():
     request = Request({
         'HTTP_COOKIE': 'a=b; %FF=%FF; empty_value=; key_only',
-    })
+    }, {})
     assert request.cookies == {
         u'a': u'b',
         u'\ufffd': u'\ufffd',

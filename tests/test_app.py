@@ -3,7 +3,6 @@
 
 from malt import Malt, Request, Response, HTTPException, json as jsonify
 import json
-import malt.routing
 import pytest
 
 
@@ -72,7 +71,7 @@ def test_wsgi_exceptions():
             'PATH_INFO': url,
         }
 
-        resp = app.dispatch(Request(environ))
+        resp = app.dispatch(Request(environ, {}))
         assert list(resp) == [text]
         assert resp.status_code == status_code
         assert resp.status == status
@@ -98,7 +97,7 @@ def test_dispatch_error(monkeypatch):
     req = Request({
         'REQUEST_METHOD': 'GET',
         'PATH_INFO': '/'
-    })
+    }, {})
     resp = app.dispatch(req)
     assert list(resp) == [b'Internal Server Error\n']
     assert resp.status_code == 500
