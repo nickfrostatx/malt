@@ -110,7 +110,7 @@ class Malt(object):
 
     def wsgi_app(self, config):
         def callable(environ, start_response):
-            request = Request(environ, config)
+            request = Request(environ, dict(config))
             response = self.dispatch(request)
             start_response(response.status, list(response.headers))
             return response
