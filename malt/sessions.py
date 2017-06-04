@@ -11,7 +11,7 @@ def b64e_raw(data):
 
 def b64d_raw(data):
     data += u'=' * (-len(data) % 4)
-    return base64.urlsafe_b64decode(data)
+    return base64.urlsafe_b64decode(want_bytes(data))
 
 
 def _constant_time_compare(a, b):
