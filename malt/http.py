@@ -23,7 +23,9 @@ HTTP_STATUS_CODES = {
     303: 'See Other',
     304: 'Not Modified',
     305: 'Use Proxy',
+    306: 'Switch Proxy',
     307: 'Temporary Redirect',
+    308: 'Permanent Redirect',
 
     400: 'Bad Request',
     401: 'Unauthorized',
@@ -44,6 +46,7 @@ HTTP_STATUS_CODES = {
     416: 'Requested Range Not Satisfiable',
     417: 'Expectation Failed',
     418: 'I\'m a teapot',
+    421: 'Misdirected Request',
     422: 'Unprocessable Entity',
     423: 'Locked',
     424: 'Failed Dependency',
@@ -60,8 +63,11 @@ HTTP_STATUS_CODES = {
     503: 'Service Unavailable',
     504: 'Gateway Timeout',
     505: 'HTTP Version Not Supported',
+    506: 'Variant Also Negotiates',
     507: 'Insufficient Storage',
+    508: 'Loop Detected',
     510: 'Not Extended',
+    511: 'Network Authentication Required',
 }
 
 MIME_HTML = 'text/html; charset=utf-8'
