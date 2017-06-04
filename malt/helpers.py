@@ -10,6 +10,11 @@ text_type = type(u'')
 PY2 = (str == bytes)
 WSGI_WANT_BYTES = PY2
 
+if PY2:
+    from itertools import izip
+else:
+    izip = zip
+
 
 def is_string(value):
     return isinstance(value, (bytes, text_type))

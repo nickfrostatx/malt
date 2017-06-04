@@ -120,3 +120,39 @@ def test_config():
     rv = wsgi(environ, lambda status, headers: None)
     rv_text = next(iter(rv)).decode('utf-8')
     assert json.loads(rv_text)['a'] == 'b'
+
+
+def test_sessions():
+    a = Malt()
+
+    @a.get('/')
+    def dump_session(request):
+        old_sess = dict(request.session)
+        request.session['a'] = 2
+        return jsonify(old_sess)
+
+    wsgi = a.wsgi_app({'SESSIONS': True, 'SECRET_KEY': 'abc'})
+
+    # Capture response headers
+    headers = [None]
+
+    def start_response(_, h):
+        headers[0] = h
+
+    # Send with a valid session
+    session_token = 'eyJhIjoxfQ.2XFQKMS-erhoKkSGsezDxFsim6YctUnzxaiiMP1wzFs'
+    environ = {
+        'REQUEST_METHOD': 'GET',
+        'PATH_INFO': '/',
+        'HTTP_COOKIE': 'session=' + session_token,
+    }
+
+    rv = wsgi(environ, start_response)
+
+    rv_text = next(iter(rv)).decode('utf-8')
+    assert json.loads(rv_text) == {'a': 1}
+
+    # Check response session cookie
+    set_cookie = next(v for k, v in headers[0] if k.lower() == 'set-cookie')
+    expected = 'eyJhIjoyfQ.WW2DtOr1pkaM9nrC9sw2kHW3Cxd57hDhLie--g46DjE'
+    assert set_cookie == 'session=' + expected

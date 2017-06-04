@@ -5,6 +5,7 @@ from .exceptions import HTTPException
 from .http import MIME_HTML
 from .models import Request, Response
 from .routing import Router
+from .sessions import open_session, save_session
 import traceback
 try:
     from urllib.parse import urlencode
@@ -69,6 +70,10 @@ class Malt(object):
             response = self.default_error_handler(HTTPException(exception=exc))
         return response
 
+    # Session handling functions
+    open_session = staticmethod(open_session)
+    save_session = staticmethod(save_session)
+
     def before_request(self, fn):
         self._before_request.append(fn)
 
@@ -110,8 +115,13 @@ class Malt(object):
 
     def wsgi_app(self, config):
         def callable(environ, start_response):
+            use_sessions = config.get('SESSIONS', False)
             request = Request(environ, dict(config))
+            if use_sessions:
+                request.session = self.open_session(request)
             response = self.dispatch(request)
+            if use_sessions:
+                self.save_session(request, response)
             start_response(response.status, list(response.headers))
             return response
         return callable
