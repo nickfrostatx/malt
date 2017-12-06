@@ -23,11 +23,9 @@ class Malt(object):
         self._before_request = []
         self._after_request = []
 
-    def url_for(self, view, **params):
+    def url_for(self, view):
         """Return the url for a particular view function."""
         url = self.router.path_for(view)
-        if params:
-            url += '?' + urlencode(params)
         return url
 
     def method_router(method):
@@ -84,7 +82,7 @@ class Malt(object):
         """Determine the correct view function, and call it."""
         # URL endpoint matching
         try:
-            view = self.router.get_view(request.method, request.path)
+            view, args = self.router.get_view(request.method, request.path)
         except LookupError as exc:
             if exc.args[0] == 'No such path':
                 raise HTTPException(404, exception=exc)
@@ -92,7 +90,7 @@ class Malt(object):
                 raise HTTPException(405, exception=exc)
             else:
                 raise
-        return view(request)
+        return view(request, *args)
 
     def get_response(self, fn, *args):
         """Call fn using args. Handle any errors."""

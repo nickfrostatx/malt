@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
-"""The URL routing."""
+"""The URL routing.
+
+This module implements regex-based URL view matching.
+"""
+import re
 
 
 class Router(object):
@@ -16,8 +20,10 @@ class Router(object):
         The view gets stored under the path and method in the path_map
         matrix. The path/method rule is stored under view in view_map.
         """
-        self.path_map.setdefault(path, {})
-        rule = self.path_map[path]
+        reg = re.compile(path)
+        self.path_map.setdefault(reg, {})
+
+        rule = self.path_map[reg]
         if method in rule:
             raise Exception('Duplicate route: {0} {1}'.format(method, path))
         rule[method] = view
@@ -25,13 +31,17 @@ class Router(object):
             self.view_map[view] = method, path
 
     def get_view(self, method, path):
-        """Look up the view """
-        if path not in self.path_map:
-            raise LookupError('No such path')
-        if method not in self.path_map[path]:
-            raise LookupError('No such method')
-        return self.path_map[path][method]
+        """Look up the view."""
+        for reg, rule in self.path_map.items():
+            m = reg.match(path)
+            if m is not None:
+                if method not in rule:
+                    raise LookupError('No such method')
+                view = rule[method]
+                args = m.groups()
+                return view, args
+        raise LookupError('No such path')
 
     def path_for(self, view):
-        method, path = self.view_map[view]
+        _, path = self.view_map[view]
         return path

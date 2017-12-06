@@ -27,17 +27,23 @@ def handle(error):
     return Response('%s\n' % error.message, code=error.status_code)
 
 
-@app.get('/')
+@app.get('^/$')
 def root(request):
     return Response('Hello World!\n')
 
 
-@app.get('/forbidden')
+@app.get('^/forbidden$')
 def forbidden(request):
     raise HTTPException(403, 'Not allowed, man')
 
 
-@app.get('/internal')
+@app.get('^/things/(\d+)$')
+def thing(request, thing_id):
+    thing_id = int(thing_id)
+    return Response('Thing {0:d}\n'.format(thing_id))
+
+
+@app.get('^/internal$')
 def internal(request):
     1/0
 
@@ -59,6 +65,7 @@ def test_wsgi_exceptions():
         ('GET', '/before', 200, '200 OK', b'before_request returned\n'),
         ('GET', '/after', 200, '200 OK', b'after_request returned\n'),
         ('GET', '/forbidden', 403, '403 Forbidden', b'Not allowed, man\n'),
+        ('GET', '/things/50', 200, '200 OK', b'Thing 50\n'),
         ('GET', '/asdf', 404, '404 Not Found', b'Not Found\n'),
         ('POST', '/', 405, '405 Method Not Allowed', b'Method Not Allowed\n'),
         ('GET', '/internal', 500, '500 Internal Server Error',
@@ -82,7 +89,7 @@ def test_wsgi_exceptions():
 
 
 def test_url_for():
-    assert app.url_for(internal, search='abc') == '/internal?search=abc'
+    assert app.url_for(internal) == r'^/internal$'
 
     with pytest.raises(KeyError):
         app.url_for(not_a_view)

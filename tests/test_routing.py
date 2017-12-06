@@ -3,6 +3,7 @@
 
 from malt.routing import Router
 import pytest
+import re
 
 
 def test_get_and_post():
@@ -17,38 +18,47 @@ def test_get_and_post():
     def get_home():
         pass
 
-    router.add_rule('GET', '/', get_root)
-    router.add_rule('POST', '/', post_root)
-    router.add_rule('GET', '/home', get_home)
-    router.add_rule('GET', '/homie', get_home)
+    def get_thing(t):
+        pass
+
+    router.add_rule('GET', r'^/$', get_root)
+    router.add_rule('POST', r'^/$', post_root)
+    router.add_rule('GET', r'^/home$', get_home)
+    router.add_rule('GET', r'^/homie$', get_home)
+    router.add_rule('GET', r'^/things/(\d+)$', get_thing)
 
     assert router.path_map == {
-        '/': {
+        re.compile(r'^/$'): {
             'GET': get_root,
             'POST': post_root,
         },
-        '/home': {
+        re.compile(r'^/home$'): {
             'GET': get_home,
         },
-        '/homie': {
+        re.compile(r'^/homie$'): {
             'GET': get_home,
-        }
+        },
+        re.compile(r'^/things/(\d+)$'): {
+            'GET': get_thing,
+        },
     }
 
     assert router.view_map == {
-        get_root: ('GET', '/'),
-        post_root: ('POST', '/'),
-        get_home: ('GET', '/home'),
+        get_root: ('GET', r'^/$'),
+        post_root: ('POST', r'^/$'),
+        get_home: ('GET', r'^/home$'),
+        get_thing: ('GET', r'^/things/(\d+)$'),
     }
 
-    assert router.get_view('GET', '/') == get_root
-    assert router.get_view('POST', '/') == post_root
-    assert router.get_view('GET', '/home') == get_home
-    assert router.get_view('GET', '/homie') == get_home
+    assert router.get_view('GET', '/') == (get_root, ())
+    assert router.get_view('POST', '/') == (post_root, ())
+    assert router.get_view('GET', '/home') == (get_home, ())
+    assert router.get_view('GET', '/homie') == (get_home, ())
+    assert router.get_view('GET', '/things/123') == (get_thing, ('123',))
 
-    assert router.path_for(get_root) == '/'
-    assert router.path_for(post_root) == '/'
-    assert router.path_for(get_home) == '/home'
+    assert router.path_for(get_root) == r'^/$'
+    assert router.path_for(post_root) == r'^/$'
+    assert router.path_for(get_home) == '^/home$'
 
 
 def test_duplicate_route():
@@ -74,9 +84,9 @@ def test_bad_rules():
     def get_root():
         pass
 
-    router.add_rule('GET', '/', get_root)
+    router.add_rule('GET', '^/$', get_root)
 
-    assert router.get_view('GET', '/') == get_root
+    assert router.get_view('GET', '/') == (get_root, ())
 
     for method in ('GET', 'POST', 'PUT', 'DELETE', 'fake method'):
         with pytest.raises(LookupError) as exc_info:
@@ -98,9 +108,9 @@ def test_missing_view():
     def unregistered():
         pass
 
-    router.add_rule('GET', '/', get_root)
+    router.add_rule('GET', r'^/$', get_root)
 
-    assert router.path_for(get_root) == '/'
+    assert router.path_for(get_root) == r'^/$'
 
     with pytest.raises(KeyError):
         router.path_for(unregistered)

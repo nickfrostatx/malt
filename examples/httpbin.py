@@ -19,28 +19,28 @@ def headers_dict(headers):
     return data
 
 
-@app.get('/ip')
+@app.get('^/ip$')
 def ip(request):
     return json({
         'origin': request.remote_addr,
     }, pretty=True)
 
 
-@app.get('/user-agent')
+@app.get('^/user-agent$')
 def user_agent(request):
     return json({
         'user-agent': request.headers.get('User-Agent'),
     }, pretty=True)
 
 
-@app.get('/headers')
+@app.get('^/headers$')
 def headers(request):
     return json({
         'headers': headers_dict(request.headers),
     }, pretty=True)
 
 
-@app.get('/get')
+@app.get('^/get$')
 def get(request):
     return json({
         'args': {},
@@ -50,7 +50,7 @@ def get(request):
     }, pretty=True)
 
 
-@app.post('/post')
+@app.post('^/post$')
 def post(request):
     return json({
         'args': {},
