@@ -37,7 +37,7 @@ Usage
 
     app = Malt()
 
-    @app.get('/')
+    @app.get('^/$')
     def home(request):
         return Response('Hello world')
 
