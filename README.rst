@@ -22,7 +22,7 @@ Heavily inspired by (or stolen from) Flask/Werkzeug.
 Installation
 ------------
 
-This will run on Python 2.6+ or 3.3+. There are no dependencies.
+This will run on Python 2.7+ or 3.4+. There are no dependencies.
 
 .. code-block:: bash
 
