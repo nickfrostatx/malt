@@ -37,6 +37,7 @@ class Malt(object):
         return route
 
     get = method_router('GET')
+    patch = method_router('PATCH')
     post = method_router('POST')
     put = method_router('PUT')
     delete = method_router('DELETE')
